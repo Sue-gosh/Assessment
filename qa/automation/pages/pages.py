@@ -10,10 +10,19 @@ class BookshelfPage:
         self.page.goto(self.URL)
 
     def get_book_elements(self):
-        return self.page.query_selector_all('.book')
+        # Books are clickable links with Vue data attributes
+        return self.page.query_selector_all('a[data-v-78b5a187]')
 
     def get_book_titles(self):
-        return [el.get_attribute('title') or el.text_content() for el in self.get_book_elements()]
+        # Extract titles from the book links (if available)
+        books = self.get_book_elements()
+        titles = []
+        for book in books:
+            # Try to get title from various attributes or text content
+            title = book.get_attribute('title') or book.get_attribute('alt') or book.text_content()
+            if title and title.strip():
+                titles.append(title.strip())
+        return titles
 
     def click_book_by_index(self, index: int):
         books = self.get_book_elements()
@@ -41,7 +50,8 @@ class BookDetailsPage:
         self.page = page
 
     def get_title(self):
-        return self.page.text_content('h1')
+        # Title is in h1 element with Vue data attribute
+        return self.page.text_content('h1[data-v-2dd5deba]')
 
     def get_author(self):
         return self.page.text_content('h2 em')
